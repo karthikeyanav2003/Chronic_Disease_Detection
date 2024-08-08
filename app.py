@@ -1,4 +1,5 @@
 import streamlit as st
+import streamlit as st1
 import torch
 import torch.nn as nn
 import torchvision.transforms as transforms
@@ -19,11 +20,7 @@ class RetinalModel(nn.Module):
     def forward(self, x):
         return self.resnet(x)
 
-# Download model function
-def download_model():
-    url = "https://drive.google.com/uc?export=download&id=1nbJUE_P74egDQLfTb4qIdY6AtyqkTadM"
-    output = "/best_model_parameters.pth"
-    gdown.download(url, output, quiet=False)
+
 
 # Load the model
 def load_model(model_path, num_parameters):
@@ -134,96 +131,62 @@ def home_page():
 
     
 def prediction_page():
-    st.markdown("""
+    st.title("Chronic Disease Detection")
+    st.markdown(
+        """
         <style>
-        .home-box {
-                background-color: #020ac6;
-                padding: 40px; /* Increased padding for a larger box */
-                margin: 20px;  /* Margin to provide space around the box */
-                border-radius: 10px;
-                color: white;
-                font-family: 'Montserrat', sans-serif;
-                width: 130%; /* Increased width of the box */
-                max-width: 1000px; /* Optional: Maximum width for large screens */
-                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: Add shadow for better visibility */
-                
-                margin-left: auto;
-                margin-right: auto;
-            }
-            .home-box h1, .home-box h2, .home-box p {
-                color: white;
-            }
-            .home-box h1 {
-                color: white;
-                
-                font-weight: 300; /* Thinner font weight */
-                font-size: 4rem; /* Increase the size of the title */
-            }        
-            .main {
-                background-color: #ffffff;  /* White background */
-                color: #333;
-            }
-            .stButton button {
-                background-color: #007bff;
-                color: white;
-                border: none;
-                border-radius: 5px;
-                padding: 10px 20px;
-                font-size: 16px;
-                cursor: pointer;
-                
-            }
-            .stButton button:hover {
-                background-color: white;
-                color: #007bff;
-                border: 2px solid #007bff;
-            }
+        .st-emotion-cache-15p99lu {
+            display: inline-flex;
+            -webkit-box-align: center;
+            align-items: center;
+            -webkit-box-pack: center;
+            justify-content: center;
+            font-weight: 400;
+            padding: 0.75rem 2.75rem;
+            border-radius: 0.5rem;
+            min-height: 2.5rem;
+            margin: 0px;
+            line-height: 1.6;
+            color: white;
+            width: auto;
+            user-select: none;
+            background-color: #020ac6;
+            border: 1px solid rgba(0, 0, 0, 0.2);
             
-            .stFileUploader {
-                background-color: white;
-                border: 2px solid #007bff;
-                border-radius: 5px;
-                padding: 10px;
-            }
-            .stFileUploader:hover {
-                background-color: white;
-                border: 2px solid #007bff;
-            }
-            .stDataFrame {
-                background-color: #ffffff;
-                border-radius: 5px;
-            }
-            .stDownloadButton button {
-                background-color: #007bff;
-                color: white;
-                border: none;
-                border-radius: 5px;
-                padding: 10px 20px;
-                font-size: 16px;
-                cursor: pointer;
-            }
-            .stDownloadButton button:hover {
-                background-color: white;
-                color: #007bff;
-                border: 2px solid #007bff;
-            }
-            /* Center the Predict button */
-            .center-button {
-                display: flex;
-                justify-content: center;
-                margin-top: 20px; /* Optional: Space above the button */
-            }
+            margin-top: 30px; /* Space above the button */
+            
+        }
+        .st-emotion-cache-15p99lu:hover {
+            background-color: white; /* Darker blue for hover */
+            border-color: black; /* Darker border on hover */
+            color : black;
+        }
+        [role="button"] {
+            cursor: pointer;
+            margin-bottom: 10px;
+            padding: 75px; /* Increase padding to make the box larger */
+            font-size: 18px; /* Increase font size for better readability */
+            border-radius: 5px; /* Add rounded corners for better aesthetics */
+            background-color: #f0f1f1; /* Green background for the button */
+            color: black; /* White text color */
+            display: block; /* Ensure the button spans the full width */
+            text-align: center; /* Center the text inside the button */
+            margin-top: 10px; /* Space above the button */
+        }
+        .st-emotion-cache-1ew6ni3 p {
+            word-break: break-word;
+            margin-bottom: 0px;
+            font-size: 24px;
+        }
         </style>
-        <div class="home-box">
-            <h1>Parameters Prediction Using Retinal Image</h1>
-        </div>       
-    """, unsafe_allow_html=True)
+        """,
+        unsafe_allow_html=True
+    )
 
    
     
 
     # Download and load the model
-    download_model()
     model_path = "/best_model_parameters.pth"
     model = load_model(model_path, num_parameters=len(healthy_ranges))
     if model is None:
@@ -303,46 +266,62 @@ def prediction_page():
         else:
             st.error("Please upload both images and fill out all fields.")  
 def main():
-    st.set_page_config(initial_sidebar_state="collapsed")
-    
-    # Define pages
-    pages = ["Home", "Prediction"]
+    st.set_page_config(initial_sidebar_state="expanded")  # Sidebar open by default
 
     # Display the logo at the top of the sidebar
     with st.sidebar:
         st.image("logo.png", use_column_width=True)  # Replace with your logo path
+
+        # Add custom CSS for sidebar text links
+        st1.markdown("""
+        <style>
+        .st-emotion-cache-1kideh2 {
+            display: inline-flex;
+            -webkit-box-align: center;
+            align-items: center;
+            -webkit-box-pack: center;
+            justify-content: center;
+            font-weight: 1900;
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.5rem;
+            min-height: 2.5rem;
+            margin: 0px;
+            line-height: 1.6;
+            color: inherit;
+            width: auto;
+            user-select: none;
+            background-color: #f0f1f1;
+            border: 0px solid #f0f1f1;
+        }
+        .st-emotion-cache-1kideh2:focus:not(:active) {
+             border-color: #f0f1f1; */
+             color: rgb(2, 10, 198); */
+             font-weight: 1900;        
+        }
+        .st-emotion-cache-lr61t1 p {
+            word-break: break-word;
+            margin-bottom: 0px;
+            font-size: 20px;
+        }             
         
+                     
+        </style>
+        """, unsafe_allow_html=True)
 
-    # Define styles for the navbar
-    styles = {
-        "nav": {
-            "background-color": "#020ac6",  # Blue background
-        },
-        "div": {
-            "max-width": "32rem",
-        },
-        "span": {
-            "border-radius": "0.5rem",
-            "color": "white",  # White text color
-            "margin": "0 0.125rem",
-            "padding": "0.4375rem 0.625rem",
-        },
-        "active": {
-            "background-color": "white",
-            "color": "black",
-        },
-        "hover": {
-            "background-color": "rgba(255, 255, 255, 0.35)",
-        },
-    }
+        # Sidebar navigation buttons
+        if st1.button('Home', key='home', help="Go to Home Page"):
+            st.session_state.page = 'Home'
+        if st1.button('Prediction', key='prediction', help="Go to Prediction Page"):
+            st.session_state.page = 'Prediction'
 
-    # Define the navbar using st_navbar
-    page = st_navbar(pages, styles=styles)
-    
+    # Initialize page state if not present
+    if 'page' not in st.session_state:
+        st.session_state.page = 'Home'
+
     # Render the selected page
-    if page == "Home":
+    if st.session_state.page == "Home":
         home_page()
-    elif page == "Prediction":
+    elif st.session_state.page == "Prediction":
         prediction_page()
 
 
