@@ -20,7 +20,11 @@ class RetinalModel(nn.Module):
     def forward(self, x):
         return self.resnet(x)
 
-
+# Download model function
+def download_model():
+    url = "https://drive.google.com/uc?export=download&id=1nbJUE_P74egDQLfTb4qIdY6AtyqkTadM"
+    output = "/best_model_parameters.pth"
+    gdown.download(url, output, quiet=False)
 
 # Load the model
 def load_model(model_path, num_parameters):
@@ -187,6 +191,7 @@ def prediction_page():
     
 
     # Download and load the model
+    download_model()
     model_path = "/best_model_parameters.pth"
     model = load_model(model_path, num_parameters=len(healthy_ranges))
     if model is None:
