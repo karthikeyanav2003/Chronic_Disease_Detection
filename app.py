@@ -247,15 +247,15 @@ def prediction_page():
             result_df.to_csv('predicted_parameters.csv', index=False)
             
              # Convert all values to strings for consistency
-            averaged_prediction_str = [str(val) for val in averaged_prediction]
-            name_str = str(name)
-            age_str = str(age)
-            gender_str = str(gender)
-
+            formatted_predictions = [f"{float(val):.2f}" for val in averaged_prediction]
+            #name_str = str(name)
+            #age_str = str(age)
+            #gender_str = str(gender)
+            
             # Create a DataFrame with parameters as rows
             result_df1 = pd.DataFrame({
-                'Parameter': list(healthy_ranges.keys()) + ['Name', 'Age', 'Gender'],
-                'Value': averaged_prediction_str + [name_str, age_str, gender_str]
+                'Parameter': list(healthy_ranges.keys()), #+ ['Name', 'Age', 'Gender'],
+                'Value': formatted_predictions #+ [name_str, age_str, gender_str]
             })
             # Output results
             st.subheader("Predicted Parameters:")
