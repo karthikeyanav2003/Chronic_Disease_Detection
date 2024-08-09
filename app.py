@@ -191,7 +191,7 @@ def prediction_page():
     
 
     # Download and load the model
-    download_model()
+    
     model_path = "/mount/src/chronic_disease_detection/best_model_parameters.pth"
     model = load_model(model_path, num_parameters=len(healthy_ranges))
     if model is None:
