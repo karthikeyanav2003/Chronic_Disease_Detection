@@ -233,79 +233,79 @@ def prediction_page():
     gender = st.selectbox("Select Gender", ["Male", "Female"])
     
     # Slide view for optional image selection
-st.header("Optional: Select Example Image Pair")
-
-image_pairs = {
-    "Pair 1": ("image/IMG001L.png", "image/IMG001R.png"),
-    "Pair 2": ("image/IMG002L.png", "image/IMG002R.png"),
-    "Pair 3": ("image/IMG003L.png", "image/IMG003R.png"),
-}
-
- # Initialize session state for selected pair
-if "selected_pair" not in st.session_state:
-    st.session_state["selected_pair"] = None
-
-cols = st.columns(len(image_pairs))
-for i, (pair_name, (left_path, right_path)) in enumerate(image_pairs.items()):
-    with cols[i]:
-        
-        
-        # Dynamic captions
-        left_caption = f"IMGL0{i+1}"
-        right_caption = f"IMGR0{i+1}"
-        
-        st.image([left_path, right_path], caption=[left_caption, right_caption], width=150, use_column_width=True)
-        placeholder = st.empty();
-        def renderButtons():
-            with placeholder.container():
-                if st.session_state["selected_pair"] == pair_name:            
-                    if st.button(f"Deselect {pair_name}", key=f"deselect_{i}", help="Deselect this pair"):
-                        st.session_state["selected_pair"] = None
-                        renderButtons();
-                else:
-                    if st.button(f"Select {pair_name}", key=f"select_{i}", help="Select this pair"):
-                        st.session_state["selected_pair"] = pair_name;
-                        renderButtons();
-                    
-        
-        renderButtons();
-   
-
-selected_pair = st.session_state["selected_pair"]
-
-# Upload images side by side
-st.header("Upload Retinal Images")
-col1, col2 = st.columns(2)
-if selected_pair:
-        left_image_path, right_image_path = image_pairs[selected_pair]
-        with col1:
-            st.image(left_image_path, caption="Selected Left Image", width=250)
-        with col2:
-            st.image(right_image_path, caption="Selected Right Image", width=250)
-else:
-        with col1:
-            uploaded_left_image = st.file_uploader("Upload Left Retinal Image", type=["jpg", "jpeg", "png"], key="left_image")
-            if uploaded_left_image:
-                st.image(uploaded_left_image, caption="Uploaded Left Image", width=250)
-        with col2:
-            uploaded_right_image = st.file_uploader("Upload Right Retinal Image", type=["jpg", "jpeg", "png"], key="right_image")
-            if uploaded_right_image:
-                st.image(uploaded_right_image, caption="Uploaded Right Image", width=250)
-
-
-# Prediction button
-if st.button("Predict", key="predict_button"):
-    if (selected_pair or (uploaded_left_image and uploaded_right_image)) and name and age and gender:
-        # Load images
-        if selected_pair:
-            left_image = Image.open(left_image_path).convert("RGB")
-            right_image = Image.open(right_image_path).convert("RGB")
-        else:
-            left_image = Image.open(uploaded_left_image).convert("RGB")
-            right_image = Image.open(uploaded_right_image).convert("RGB")
-        
-        left_image_tensor = preprocess_image(left_image)
-        right_image_tensor = preprocess_image(right_image)
+    st.header("Optional: Select Example Image Pair")
+    
+    image_pairs = {
+        "Pair 1": ("image/IMG001L.png", "image/IMG001R.png"),
+        "Pair 2": ("image/IMG002L.png", "image/IMG002R.png"),
+        "Pair 3": ("image/IMG003L.png", "image/IMG003R.png"),
+    }
+    
+     # Initialize session state for selected pair
+    if "selected_pair" not in st.session_state:
+        st.session_state["selected_pair"] = None
+    
+    cols = st.columns(len(image_pairs))
+    for i, (pair_name, (left_path, right_path)) in enumerate(image_pairs.items()):
+        with cols[i]:
+            
+            
+            # Dynamic captions
+            left_caption = f"IMGL0{i+1}"
+            right_caption = f"IMGR0{i+1}"
+            
+            st.image([left_path, right_path], caption=[left_caption, right_caption], width=150, use_column_width=True)
+            placeholder = st.empty();
+            def renderButtons():
+                with placeholder.container():
+                    if st.session_state["selected_pair"] == pair_name:            
+                        if st.button(f"Deselect {pair_name}", key=f"deselect_{i}", help="Deselect this pair"):
+                            st.session_state["selected_pair"] = None
+                            renderButtons();
+                    else:
+                        if st.button(f"Select {pair_name}", key=f"select_{i}", help="Select this pair"):
+                            st.session_state["selected_pair"] = pair_name;
+                            renderButtons();
+                        
+            
+            renderButtons();
+       
+    
+    selected_pair = st.session_state["selected_pair"]
+    
+    # Upload images side by side
+    st.header("Upload Retinal Images")
+    col1, col2 = st.columns(2)
+    if selected_pair:
+            left_image_path, right_image_path = image_pairs[selected_pair]
+            with col1:
+                st.image(left_image_path, caption="Selected Left Image", width=250)
+            with col2:
+                st.image(right_image_path, caption="Selected Right Image", width=250)
+    else:
+            with col1:
+                uploaded_left_image = st.file_uploader("Upload Left Retinal Image", type=["jpg", "jpeg", "png"], key="left_image")
+                if uploaded_left_image:
+                    st.image(uploaded_left_image, caption="Uploaded Left Image", width=250)
+            with col2:
+                uploaded_right_image = st.file_uploader("Upload Right Retinal Image", type=["jpg", "jpeg", "png"], key="right_image")
+                if uploaded_right_image:
+                    st.image(uploaded_right_image, caption="Uploaded Right Image", width=250)
+    
+    
+    # Prediction button
+    if st.button("Predict", key="predict_button"):
+        if (selected_pair or (uploaded_left_image and uploaded_right_image)) and name and age and gender:
+            # Load images
+            if selected_pair:
+                left_image = Image.open(left_image_path).convert("RGB")
+                right_image = Image.open(right_image_path).convert("RGB")
+            else:
+                left_image = Image.open(uploaded_left_image).convert("RGB")
+                right_image = Image.open(uploaded_right_image).convert("RGB")
+            
+            left_image_tensor = preprocess_image(left_image)
+            right_image_tensor = preprocess_image(right_image)
             
             # Predict
             device = 'cuda' if torch.cuda.is_available() else 'cpu'
