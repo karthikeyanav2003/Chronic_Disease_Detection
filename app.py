@@ -9,6 +9,7 @@ import numpy as np
 import pandas as pd
 import gdown
 from streamlit_navigation_bar import st_navbar
+import os
 
 # Define the model class
 class RetinalModel(nn.Module):
