@@ -341,8 +341,13 @@ def prediction_page():
                 'Value': formatted_predictions #+ [name_str, age_str, gender_str]
             })
             parameters_to_keep = [
-                'Mean Arterial Blood Pressure','Fasting Glucose Level','LDL','C-Reactive Protein (CRP)','eGFR' 
+                'Mean Arterial Blood Pressure',
+                'Fasting Glucose Level',
+                'LDL',
+                'C-Reactive Protein (CRP)',
+                'eGFR'
             ]
+
             # Filter the DataFrame
             filtered_data = result_df1[result_df1['Parameter'].isin(parameters_to_keep)].reset_index(drop=True)
             # Output results
