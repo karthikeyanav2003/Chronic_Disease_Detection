@@ -340,7 +340,7 @@ def prediction_page():
                 'Parameter': list(healthy_ranges.keys()), #+ ['Name', 'Age', 'Gender'],
                 'Value': formatted_predictions #+ [name_str, age_str, gender_str]
             })
-           parameters_to_keep = [
+            parameters_to_keep = [
                 'Mean Arterial Blood Pressure','Fasting Glucose Level','LDL','C-Reactive Protein (CRP)','eGFR' 
             ]
             # Filter the DataFrame
