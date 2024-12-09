@@ -340,9 +340,15 @@ def prediction_page():
                 'Parameter': list(healthy_ranges.keys()), #+ ['Name', 'Age', 'Gender'],
                 'Value': formatted_predictions #+ [name_str, age_str, gender_str]
             })
+           parameters_to_keep = [
+                'Mean Arterial Blood Pressure','Fasting Glucose Level','LDL','C-Reactive Protein (CRP)','eGFR' 
+            ]
+            # Filter the DataFrame
+            filtered_data = result_df1[result_df1['Parameter'].isin(parameters_to_keep)].reset_index(drop=True)
             # Output results
             st.subheader("Predicted Parameters:")
-            st.dataframe(result_df1, use_container_width=True)
+            st.dataframe(filtered_data, use_container_width=True)
+
             
             st.download_button(
                 label="Download CSV",
