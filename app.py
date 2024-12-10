@@ -347,7 +347,51 @@ def prediction_page():
                 'C-Reactive Protein (CRP)',
                 'eGFR'
             ]
-
+            if pair_name in ["Pair 1"]:  # Check if all three variables are provided
+                fresult = pd.DataFrame({
+                    "Parameter": [
+                        "Alanine transaminase",
+                        "Aspartate transaminase",
+                        "Mean Arterial Blood Pressure",
+                        "Fasting Glucose Level",
+                        "LDL",
+                        "C-Reactive Protein (CRP)",
+                        "eGFR"
+                    ],
+                    "Value": [45, 35, 85, 110, 130, 4.5, 90]  # Example values for Pair 1
+                })
+            elif pair_name in ["Pair 2"]:
+                fresult = pd.DataFrame({
+                    "Parameter": [
+                        "Alanine transaminase",
+                        "Aspartate transaminase",
+                        "Mean Arterial Blood Pressure",
+                        "Fasting Glucose Level",
+                        "LDL",
+                        "C-Reactive Protein (CRP)",
+                        "eGFR"
+                    ],
+                    "Value": [50, 40, 88, 115, 120, 5.0, 85]  # Example values for Pair 2
+                })
+            elif pair_name in ["Pair 3"]:
+                # Create DataFrame for Pair 3
+                fresult = pd.DataFrame({
+                    "Parameter": [
+                        "Alanine transaminase",
+                        "Aspartate transaminase",
+                        "Mean Arterial Blood Pressure",
+                        "Fasting Glucose Level",
+                        "LDL",
+                        "C-Reactive Protein (CRP)",
+                        "eGFR"
+                    ],
+                    "Value": [55, 45, 90, 120, 110, 3.8, 80]  # Example values for Pair 3
+                })
+                st.warning(f"Data for {pair_name}: Only Pair 3 provided.")
+                st.dataframe(fresult)
+        
+            else:
+                st.error("Invalid pair name. Please enter 'Pair 1', 'Pair 2', or 'Pair 3'.")
             # Filter the DataFrame
             filtered_data = result_df1[result_df1['Parameter'].isin(parameters_to_keep)].reset_index(drop=True)
             # Output results
