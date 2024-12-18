@@ -254,7 +254,7 @@ def prediction_page():
             left_caption = f"IMGL0{i+1}"
             right_caption = f"IMGR0{i+1}"
             
-            st.image([left_path, right_path], caption=[left_caption, right_caption], width=150, use_column_width=True)
+            st.image([left_path, right_path], caption=[left_caption, right_caption], width=150, use_container_width=True)
             placeholder = st.empty();
             def renderButtons():
                 with placeholder.container():
@@ -369,7 +369,7 @@ def main():
 
     # Display the logo at the top of the sidebar
     with st.sidebar:
-        st.image("logo.png", use_column_width=True)  # Replace with your logo path
+        st.image("logo.png", use_container_width=True)  # Replace with your logo path
 
         # Add custom CSS for sidebar text links
         st1.markdown("""
