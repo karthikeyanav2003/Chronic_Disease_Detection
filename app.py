@@ -23,10 +23,12 @@ class RetinalModel(nn.Module):
 
 # Download model function
 def download_model():
-    # url = "https://drive.google.com/uc?export=download&id=1nbJUE_P74egDQLfTb4qIdY6AtyqkTadM"
-    # output = "/mount/src/chronic_disease_detection/best_model_parameters.pth"
-    # gdown.download(url, output, quiet=False)
-    return
+     model_path = "/best_model_parameters.pth"
+     model = load_model(model_path, num_parameters=len(healthy_ranges))
+     if model is None:
+         st.error("Failed to load model.")
+         return
+
 # Load the model
 def load_model(model_path, num_parameters):
     model = RetinalModel(num_parameters)
@@ -218,65 +220,61 @@ def prediction_page():
 
     # Download and load the model
     
-    # model_path = "/mount/src/chronic_disease_detection/best_model_parameters.pth"
-    # if not os.path.exists(model_path):
-    #     download_model()
-    # model = load_model(model_path, num_parameters=len(healthy_ranges))
-    # if model is None:
-    #     st.error("Failed to load model.")
-    #     return
+    model_path = "/best_model_parameters.pth"
+    if not os.path.exists(model_path):
+        download_model()
+    model = load_model(model_path, num_parameters=len(healthy_ranges))
+    if model is None:
+        st.error("Failed to load model.")
+        return
     
     # User input
     st.header("Patient Information")
     name = st.text_input("Enter Patient Name")
     age = st.number_input("Enter Patient Age", min_value=0)
     gender = st.selectbox("Select Gender", ["Male", "Female"])
-    alcohol = st.selectbox("Select Alcohol Status", ["Yes", "No"])
-    smoking= st.selectbox("Select Smoking Status", ["Yes", "No"])
+    
     # Slide view for optional image selection
-    # st.header("Optional: Select Example Image Pair")
     
-    # image_pairs = {
-    #     "Pair 1": ("image/IMG001L.png", "image/IMG001R.png"),
-    #     # "Pair 2": ("image/IMG002L.png", "image/IMG002R.png"),
-    #     # "Pair 3": ("image/IMG003L.png", "image/IMG003R.png"),
-    # }
+    image_pairs = {
+        "Pair 1": ("image/IMG001L.png", "image/IMG001R.png"),
+        "Pair 2": ("image/IMG002L.png", "image/IMG002R.png"),
+        "Pair 3": ("image/IMG003L.png", "image/IMG003R.png"),
+    }
     
-     # Initialize session state for selected pair
+     
+    # Initialize session state for selected pair
     if "selected_pair" not in st.session_state:
         st.session_state["selected_pair"] = None
-    
-    # cols = st.columns(len(image_pairs))
-    # for i, (pair_name, (left_path, right_path)) in enumerate(image_pairs.items()):
-    #     with cols[i]:
+
+    cols = st.columns(len(image_pairs))
+    for i, (pair_name, _) in enumerate(image_pairs.items()):  # Ignore image paths
+        with cols[i]:
+            # Render buttons only for the first pair
+            if i == 0:  # Only the first pair
+                placeholder = st.empty()
             
+                def renderButtons():
+                    with placeholder.container():
+                        if st.session_state["selected_pair"] == pair_name:            
+                            if st.button(f"Deselect {pair_name}", key=f"deselect_{i}", help="Deselect this pair"):
+                                st.session_state["selected_pair"] = None
+                                renderButtons()
+                        else:
+                            if st.button(f"Select {pair_name}", key=f"select_{i}", help="Select this pair"):
+                                st.session_state["selected_pair"] = pair_name
+                                renderButtons()
             
-    #         # Dynamic captions
-    #         left_caption = f"IMGL0{i+1}"
-    #         right_caption = f"IMGR0{i+1}"
-            
-    #         st.image([left_path, right_path], caption=[left_caption, right_caption], width=150, use_column_width=True)
-    #         placeholder = st.empty();
-    #         def renderButtons():
-    #             with placeholder.container():
-    #                 if st.session_state["selected_pair"] == pair_name:            
-    #                     if st.button(f"Deselect {pair_name}", key=f"deselect_{i}", help="Deselect this pair"):
-    #                         st.session_state["selected_pair"] = None
-    #                         renderButtons();
-    #                 else:
-    #                     if st.button(f"Select {pair_name}", key=f"select_{i}", help="Select this pair"):
-    #                         st.session_state["selected_pair"] = pair_name;
-    #                         renderButtons();
-                        
-            
-    #         renderButtons();
-       
-    
+                renderButtons()
+
     selected_pair = st.session_state["selected_pair"]
     
     # Upload images side by side
     st.header("Upload Retinal Images")
     col1, col2 = st.columns(2)
+    # Placeholder for dynamically updating the upload box display
+    left_placeholder = col1.empty()
+    right_placeholder = col2.empty()
     if selected_pair:
             left_image_path, right_image_path = image_pairs[selected_pair]
             with col1:
@@ -298,26 +296,26 @@ def prediction_page():
     if st.button("Predict", key="predict_button"):
         if (selected_pair or (uploaded_left_image and uploaded_right_image)) and name and age and gender:
             # Load images
-            # if selected_pair:
-            #     left_image = Image.open(left_image_path).convert("RGB")
-            #     right_image = Image.open(right_image_path).convert("RGB")
-            # else:
-            #     left_image = Image.open(uploaded_left_image).convert("RGB")
-            #     right_image = Image.open(uploaded_right_image).convert("RGB")
+            if selected_pair:
+                left_image = Image.open(left_image_path).convert("RGB")
+                right_image = Image.open(right_image_path).convert("RGB")
+            else:
+                left_image = Image.open(uploaded_left_image).convert("RGB")
+                right_image = Image.open(uploaded_right_image).convert("RGB")
             
-            # left_image_tensor = preprocess_image(left_image)
-            # right_image_tensor = preprocess_image(right_image)
+            left_image_tensor = preprocess_image(left_image)
+            right_image_tensor = preprocess_image(right_image)
             
-            # # Predict
-            # device = 'cuda' if torch.cuda.is_available() else 'cpu'
-            # model.to(device)
+            # Predict
+            device = 'cuda' if torch.cuda.is_available() else 'cpu'
+            model.to(device)
             
-            # left_image_tensor = left_image_tensor.to(device)
-            # right_image_tensor = right_image_tensor.to(device)
+            left_image_tensor = left_image_tensor.to(device)
+            right_image_tensor = right_image_tensor.to(device)
             
-            # with torch.no_grad():
-            #     left_prediction = model(left_image_tensor).cpu().numpy().flatten()
-            #     right_prediction = model(right_image_tensor).cpu().numpy().flatten()
+            with torch.no_grad():
+                left_prediction = model(left_image_tensor).cpu().numpy().flatten()
+                right_prediction = model(right_image_tensor).cpu().numpy().flatten()
             
             # Average predictions
             average_prediction = (left_prediction + right_prediction) / 2
@@ -328,8 +326,6 @@ def prediction_page():
             result_df.insert(0, "Name", [name])
             result_df.insert(1, "Age", [age])
             result_df.insert(2, "Gender", [gender])
-            result_df.insert(3, "Alcoholic", [alcohol])
-            result_df.insert(4, "Smoking", [smoking])
             result_df.to_csv('predicted_parameters.csv', index=False)
             
              # Convert all values to strings for consistency
@@ -350,51 +346,7 @@ def prediction_page():
                 'C-Reactive Protein (CRP)',
                 'eGFR'
             ]
-            if pair_name in ["Pair 1"]:  # Check if all three variables are provided
-                fresult = pd.DataFrame({
-                    "Parameter": [
-                        "Alanine transaminase",
-                        "Aspartate transaminase",
-                        "Mean Arterial Blood Pressure",
-                        "Fasting Glucose Level",
-                        "LDL",
-                        "C-Reactive Protein (CRP)",
-                        "eGFR"
-                    ],
-                    "Value": [45, 35, 85, 110, 130, 4.5, 90]  # Example values for Pair 1
-                })
-            elif pair_name in ["Pair 2"]:
-                fresult = pd.DataFrame({
-                    "Parameter": [
-                        "Alanine transaminase",
-                        "Aspartate transaminase",
-                        "Mean Arterial Blood Pressure",
-                        "Fasting Glucose Level",
-                        "LDL",
-                        "C-Reactive Protein (CRP)",
-                        "eGFR"
-                    ],
-                    "Value": [50, 40, 88, 115, 120, 5.0, 85]  # Example values for Pair 2
-                })
-            elif pair_name in ["Pair 3"]:
-                # Create DataFrame for Pair 3
-                fresult = pd.DataFrame({
-                    "Parameter": [
-                        "Alanine transaminase",
-                        "Aspartate transaminase",
-                        "Mean Arterial Blood Pressure",
-                        "Fasting Glucose Level",
-                        "LDL",
-                        "C-Reactive Protein (CRP)",
-                        "eGFR"
-                    ],
-                    "Value": [55, 45, 90, 120, 110, 3.8, 80]  # Example values for Pair 3
-                })
-                st.warning(f"Data for {pair_name}: Only Pair 3 provided.")
-                st.dataframe(fresult)
-        
-            else:
-                st.error("Invalid pair name. Please enter 'Pair 1', 'Pair 2', or 'Pair 3'.")
+           
             # Filter the DataFrame
             filtered_data = result_df1[result_df1['Parameter'].isin(parameters_to_keep)].reset_index(drop=True)
             # Output results
@@ -416,7 +368,7 @@ def main():
 
     # Display the logo at the top of the sidebar
     with st.sidebar:
-        st.image("logo.png", use_column_width=True)  # Replace with your logo path
+        st.image("logo.png", use_container_width=True)  # Replace with your logo path
 
         # Add custom CSS for sidebar text links
         st1.markdown("""
@@ -459,36 +411,6 @@ def main():
             st.session_state.page = 'Home'
         if st1.button('Prediction', key='prediction', help="Go to Prediction Page"):
             st.session_state.page = 'Prediction'
-        image_pairs = {
-        "Pair 1": ("image/IMG001L.png", "image/IMG001R.png"),}
-        if st.session_state.page== 'Prediction':
-            if "selected_pair" not in st.session_state:
-                st.session_state["selected_pair"] = None
-                cols = st.columns(len(image_pairs))
-                for i, (pair_name, (left_path, right_path)) in enumerate(image_pairs.items()):
-                    with cols[i]:
-                        # Dynamic captions
-                        left_caption = f"IMGL0{i+1}"
-                        right_caption = f"IMGR0{i+1}"
-                        
-                        st.image([left_path, right_path], caption=[left_caption, right_caption], width=150, use_column_width=True)
-                        placeholder = st.empty();
-                        def renderButtons():
-                            with placeholder.container():
-                                if st.session_state["selected_pair"] == pair_name:            
-                                    if st.button(f"Deselect {pair_name}", key=f"deselect_{i}", help="Deselect this pair"):
-                                        st.session_state["selected_pair"] = None
-                                        renderButtons();
-                                else:
-                                    if st.button(f"Select {pair_name}", key=f"select_{i}", help="Select this pair"):
-                                        st.session_state["selected_pair"] = pair_name;
-                                        renderButtons();
-                                    
-                        
-                        renderButtons();
-                
-                
-            selected_pair = st.session_state["selected_pair"]
 
     # Initialize page state if not present
     if 'page' not in st.session_state:
