@@ -23,9 +23,11 @@ class RetinalModel(nn.Module):
 
 # Download model function
 def download_model():
-    url = "https://drive.google.com/uc?export=download&id=1nbJUE_P74egDQLfTb4qIdY6AtyqkTadM"
-    output = "/mount/src/chronic_disease_detection/best_model_parameters.pth"
-    gdown.download(url, output, quiet=False)
+     model_path = "/best_model_parameters.pth"
+     model = load_model(model_path, num_parameters=len(healthy_ranges))
+     if model is None:
+         st.error("Failed to load model.")
+         return
 
 # Load the model
 def load_model(model_path, num_parameters):
@@ -218,7 +220,7 @@ def prediction_page():
 
     # Download and load the model
     
-    model_path = "/mount/src/chronic_disease_detection/best_model_parameters.pth"
+    model_path = "/best_model_parameters.pth"
     if not os.path.exists(model_path):
         download_model()
     model = load_model(model_path, num_parameters=len(healthy_ranges))
@@ -233,7 +235,6 @@ def prediction_page():
     gender = st.selectbox("Select Gender", ["Male", "Female"])
     
     # Slide view for optional image selection
-    st.header("Optional: Select Example Image Pair")
     
     image_pairs = {
         "Pair 1": ("image/IMG001L.png", "image/IMG001R.png"),
@@ -241,41 +242,39 @@ def prediction_page():
         "Pair 3": ("image/IMG003L.png", "image/IMG003R.png"),
     }
     
-     # Initialize session state for selected pair
+     
+    # Initialize session state for selected pair
     if "selected_pair" not in st.session_state:
         st.session_state["selected_pair"] = None
-    
+
     cols = st.columns(len(image_pairs))
-    for i, (pair_name, (left_path, right_path)) in enumerate(image_pairs.items()):
+    for i, (pair_name, _) in enumerate(image_pairs.items()):  # Ignore image paths
         with cols[i]:
+            # Render buttons only for the first pair
+            if i == 0:  # Only the first pair
+                placeholder = st.empty()
             
+                def renderButtons():
+                    with placeholder.container():
+                        if st.session_state["selected_pair"] == pair_name:            
+                            if st.button(f"Deselect {pair_name}", key=f"deselect_{i}", help="Deselect this pair"):
+                                st.session_state["selected_pair"] = None
+                                renderButtons()
+                        else:
+                            if st.button(f"Select {pair_name}", key=f"select_{i}", help="Select this pair"):
+                                st.session_state["selected_pair"] = pair_name
+                                renderButtons()
             
-            # Dynamic captions
-            left_caption = f"IMGL0{i+1}"
-            right_caption = f"IMGR0{i+1}"
-            
-            st.image([left_path, right_path], caption=[left_caption, right_caption], width=150, use_container_width=True)
-            placeholder = st.empty();
-            def renderButtons():
-                with placeholder.container():
-                    if st.session_state["selected_pair"] == pair_name:            
-                        if st.button(f"Deselect {pair_name}", key=f"deselect_{i}", help="Deselect this pair"):
-                            st.session_state["selected_pair"] = None
-                            renderButtons();
-                    else:
-                        if st.button(f"Select {pair_name}", key=f"select_{i}", help="Select this pair"):
-                            st.session_state["selected_pair"] = pair_name;
-                            renderButtons();
-                        
-            
-            renderButtons();
-       
-    
+                renderButtons()
+
     selected_pair = st.session_state["selected_pair"]
     
     # Upload images side by side
     st.header("Upload Retinal Images")
     col1, col2 = st.columns(2)
+    # Placeholder for dynamically updating the upload box display
+    left_placeholder = col1.empty()
+    right_placeholder = col2.empty()
     if selected_pair:
             left_image_path, right_image_path = image_pairs[selected_pair]
             with col1:
