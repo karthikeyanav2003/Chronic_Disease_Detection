@@ -23,7 +23,7 @@ class RetinalModel(nn.Module):
 
 # Download model function
 def download_model():
-     model_path = "/best_model_parameters.pth"
+     model_path = "best_model_parameters.pth"
      model = load_model(model_path, num_parameters=len(healthy_ranges))
      if model is None:
          st.error("Failed to load model.")
@@ -220,7 +220,7 @@ def prediction_page():
 
     # Download and load the model
     
-    model_path = "/best_model_parameters.pth"
+    model_path = "best_model_parameters.pth"
     if not os.path.exists(model_path):
         download_model()
     model = load_model(model_path, num_parameters=len(healthy_ranges))
@@ -233,7 +233,8 @@ def prediction_page():
     name = st.text_input("Enter Patient Name")
     age = st.number_input("Enter Patient Age", min_value=0)
     gender = st.selectbox("Select Gender", ["Male", "Female"])
-    
+    smoking = st.selectbox("Select Smoking Status", ["Yes", "No"])
+    alcoholic = st.selectbox("Select Alcoholic Status", ["Yes", "No"])
     # Slide view for optional image selection
     
     image_pairs = {
@@ -339,30 +340,71 @@ def prediction_page():
                 'Parameter': list(healthy_ranges.keys()), #+ ['Name', 'Age', 'Gender'],
                 'Value': formatted_predictions #+ [name_str, age_str, gender_str]
             })
-            parameters_to_keep = [
-                'Mean Arterial Blood Pressure',
-                'Fasting Glucose Level',
-                'LDL',
-                'C-Reactive Protein (CRP)',
-                'eGFR'
-            ]
-           
-            # Filter the DataFrame
-            filtered_data = result_df1[result_df1['Parameter'].isin(parameters_to_keep)].reset_index(drop=True)
+            data = {
+                "Parameter": ["LDL", "Mean Arterial Blood Pressure", "eGFR", "Fasting Glucose Level", "C-Reactive Protein (CRP)", "AST","ALT"],
+                "Value": [200, 150, 98, 130, 4.5, 35, 40],
+            }
+            health_df = pd.DataFrame(data)
+            
+            health_df[["Condition", "Explanation"]] = health_df.apply(
+                lambda row: pd.Series(evaluate_conditions(row)), axis=1
+            )
+            # health_df.insert(0, "Name", [name])
+            # health_df.insert(1, "Age", [age])
+            # health_df.insert(2, "Gender", [gender])
+            # health_df.insert(3, "Smoking Status", [smoking])
+            # health_df.insert(4, "Alcoholic Status", [alcoholic])
             # Output results
             st.subheader("Predicted Parameters:")
-            st.dataframe(filtered_data, use_container_width=True)
+            st.dataframe(health_df, use_container_width=True)
 
             
             st.download_button(
                 label="Download CSV",
-                data=result_df.to_csv(index=False).encode('utf-8'),
+                data=health_df.to_csv(index=False).encode('utf-8'),
                 file_name='predicted_parameters.csv',
                 mime='text/csv',
                 key="download_button"
             )
         else:
             st.error("Please upload both images and fill out all fields.")  
+def evaluate_conditions(row):
+                parameter = row["Parameter"]
+                value = row["Value"]
+
+                if parameter == "LDL":
+                    if value > 160:
+                        return "Hyperlipidemia", "LDL levels are elevated."
+                    else:
+                        return "Normal", "LDL levels are within the normal range."
+                elif parameter == "Mean Arterial Blood Pressure":
+                    if value > 100:
+                        return "Hypertension", "Mean arterial blood pressure is elevated."
+                    else:
+                        return "Normal", "Blood pressure is within the normal range."
+                elif parameter == "eGFR":
+                    if value < 60:
+                        return "Chronic Kidney Disease", "eGFR levels indicate impaired kidney function."
+                    else:
+                        return "Normal", "eGFR levels are normal."
+                elif parameter == "Fasting Glucose Level":
+                    if value > 126:
+                        return "Diabetes", "Fasting glucose level is elevated."
+                    else:
+                        return "Normal", "Fasting glucose level is within the normal range."
+                elif parameter == "C-Reactive Protein (CRP)":
+                    if value > 3:
+                        return "Inflammation", "Elevated CRP levels indicate inflammation."
+                    else:
+                        return "Normal", "CRP levels are within the normal range."
+                elif parameter == "AST" or parameter == "ALT":
+                    if value > 40:
+                        return "Liver Abnormality", f"Elevated {parameter} levels may indicate liver issues."
+                    else:
+                        return "Normal", f"{parameter} levels are within the normal range."
+                else:
+                    return "Unknown", "No condition detected for this parameter."
+
 def main():
     st.set_page_config(initial_sidebar_state="expanded")  # Sidebar open by default
 
