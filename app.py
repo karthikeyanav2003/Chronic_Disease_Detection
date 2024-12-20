@@ -258,11 +258,11 @@ def prediction_page():
                 def renderButtons():
                     with placeholder.container():
                         if st.session_state["selected_pair"] == pair_name:            
-                            if st.button(f"Deselect {pair_name}", key=f"deselect_{i}", help="Deselect this pair"):
+                            if st.button(f" Click here to upload sample fundus images", key=f"deselect_{i}", help="Deselect this pair"):
                                 st.session_state["selected_pair"] = None
                                 renderButtons()
                         else:
-                            if st.button(f"Select {pair_name}", key=f"select_{i}", help="Select this pair"):
+                            if st.button(f" Click here to upload sample fundus images", key=f"select_{i}", help="Select this pair"):
                                 st.session_state["selected_pair"] = pair_name
                                 renderButtons()
             
